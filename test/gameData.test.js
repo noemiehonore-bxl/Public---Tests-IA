@@ -1,20 +1,27 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { MISSIONS, CYFUN_PILLARS, RANKS } from '../src/gameData.js';
-import { getRank, scoreAnswer } from '../src/app.js';
+import { ASSESSMENT_AREAS, CYFUN_FUNCTIONS, MATURITY_LEVELS, ROADMAP_STEPS } from '../src/gameData.js';
+import { calculateAverageMaturity, getMaturityLevel, getPriorityAreas } from '../src/app.js';
 
-test('missions cover core CyFun learning pillars with a correct answer each', () => {
-  assert.ok(MISSIONS.length >= 5);
-  assert.deepEqual(new Set(MISSIONS.map((mission) => mission.pillar)), new Set(CYFUN_PILLARS));
-  for (const mission of MISSIONS) {
-    assert.equal(mission.answers.filter((answer) => answer.correct).length, 1, mission.id);
-    assert.ok(mission.joke.length > 20);
+test('assessment content covers every CyFun function with board questions and evidence', () => {
+  assert.equal(ASSESSMENT_AREAS.length, CYFUN_FUNCTIONS.length);
+  assert.deepEqual(new Set(ASSESSMENT_AREAS.map((area) => area.function)), new Set(CYFUN_FUNCTIONS));
+  for (const area of ASSESSMENT_AREAS) {
+    assert.ok(area.boardQuestion.includes('?'), area.id);
+    assert.ok(area.evidence.length >= 4, area.id);
+    assert.ok(area.indicators.length >= 3, area.id);
   }
 });
 
-test('ranking and scoring reward correct streaks without negative totals requirement', () => {
-  assert.equal(getRank(0).name, RANKS[0].name);
-  assert.equal(getRank(700).name, RANKS.at(-1).name);
-  assert.equal(scoreAnswer(true, 2), 140);
-  assert.equal(scoreAnswer(false, 2), -20);
+test('maturity helpers summarize scores for CISO prioritisation', () => {
+  assert.equal(MATURITY_LEVELS.length, 5);
+  assert.equal(getMaturityLevel(4.6).name, 'Optimised');
+  assert.equal(calculateAverageMaturity({ identify: 2, protect: 3, detect: 4 }), 3);
+  assert.equal(calculateAverageMaturity({}), 1);
+  assert.deepEqual(getPriorityAreas({ identify: 4, protect: 1, detect: 2, respond: 5, recover: 3 }).map((area) => area.id), ['protect', 'detect']);
+});
+
+test('roadmap provides an executive assessment sequence', () => {
+  assert.ok(ROADMAP_STEPS.length >= 5);
+  assert.match(ROADMAP_STEPS.at(-1), /leadership/i);
 });

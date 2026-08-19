@@ -1,14 +1,14 @@
-# CyFun Quest: Belgium NIS2 Training Game
+# CyFun Maturity Assessment for CISOs
 
-A playful browser game for junior cyber consultants learning how Belgian NIS2 duties connect to the CyFun / CyberFundamentals mindset.
+A static website that helps CISOs structure a CyberFundamentals (CyFun) maturity assessment discussion with executives, risk owners, and technical control owners.
 
-## What learners practice
+## What the site provides
 
-- Scoping an entity before proposing controls.
-- Explaining management accountability in plain language.
-- Mapping advice to the five CyFun learning pillars: Identify, Protect, Detect, Respond, and Recover.
-- Thinking in evidence: risk registers, access reviews, detection logs, incident records, restore tests, and board minutes.
-- Winning extremely serious awards, including the Chocolate Firewall Crown.
+- A board-ready overview of the five CyFun functions: Identify, Protect, Detect, Respond, and Recover.
+- A five-level maturity scale from Initial to Optimised.
+- Evidence prompts for each function, including risk registers, access reviews, logging standards, incident records, and restore tests.
+- Interactive maturity selectors that calculate an overall maturity score and highlight the first two priority areas.
+- A practical roadmap for turning assessment findings into quarterly leadership reporting and remediation priorities.
 
 ## Run locally
 
@@ -28,7 +28,7 @@ npm test
 
 ## Source notes
 
-The learning content is intentionally concise and should be treated as training material, not legal advice. Before using it for client deliverables, validate with official Belgian sources:
+The learning content is intentionally concise and should be treated as assessment support, not legal advice. Before using it for client deliverables, validate with official Belgian sources:
 
 - CCB / Safeonweb NIS2 overview: <https://atwork.safeonweb.be/nis2>
 - CCB / Safeonweb CyberFundamentals Framework: <https://atwork.safeonweb.be/tools-resources/cyberfundamentals-framework>

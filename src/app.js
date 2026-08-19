@@ -1,73 +1,112 @@
-import { CYFUN_PILLARS, MISSIONS, RANKS } from './gameData.js';
+import { ASSESSMENT_AREAS, CYFUN_FUNCTIONS, MATURITY_LEVELS, ROADMAP_STEPS } from './gameData.js';
 
-const state = { mission: 0, score: 0, answered: false, log: [] };
 const app = typeof document === 'undefined' ? null : document.querySelector('#app');
 
-export function getRank(score) {
-  return RANKS.filter((rank) => score >= rank.min).at(-1);
+export function getMaturityLevel(score) {
+  const boundedScore = Math.max(1, Math.min(5, Math.round(score)));
+  return MATURITY_LEVELS.find((level) => level.level === boundedScore);
 }
 
-export function scoreAnswer(isCorrect, streak) {
-  return isCorrect ? 100 + Math.min(streak, 3) * 20 : -20;
+export function calculateAverageMaturity(scores) {
+  const values = Object.values(scores).map(Number).filter((value) => Number.isFinite(value));
+  if (!values.length) return 1;
+  return Number((values.reduce((total, value) => total + value, 0) / values.length).toFixed(1));
 }
 
-function renderPillars(active) {
-  return CYFUN_PILLARS.map((pillar) => `<span class="pill ${pillar === active ? 'active' : ''}">${pillar}</span>`).join('');
+export function getPriorityAreas(scores) {
+  return ASSESSMENT_AREAS
+    .map((area) => ({ ...area, score: Number(scores[area.id] ?? 1) }))
+    .sort((a, b) => a.score - b.score || a.function.localeCompare(b.function))
+    .slice(0, 2);
+}
+
+const scores = Object.fromEntries(ASSESSMENT_AREAS.map((area) => [area.id, 3]));
+
+function renderFunctionPills() {
+  return CYFUN_FUNCTIONS.map((name) => `<span class="pill">${name}</span>`).join('');
+}
+
+function renderMaturityScale() {
+  return MATURITY_LEVELS.map((level) => `
+    <article class="level-card">
+      <strong>${level.level}. ${level.name}</strong>
+      <p>${level.signal}</p>
+    </article>`).join('');
+}
+
+function renderArea(area) {
+  return `
+    <article class="assessment-card" id="${area.id}">
+      <div>
+        <p class="eyebrow">${area.function}</p>
+        <h3>${area.title}</h3>
+        <p class="board-question">${area.boardQuestion}</p>
+      </div>
+      <label>Current maturity
+        <select data-score="${area.id}" aria-label="${area.function} maturity score">
+          ${MATURITY_LEVELS.map((level) => `<option value="${level.level}" ${scores[area.id] === level.level ? 'selected' : ''}>${level.level} - ${level.name}</option>`).join('')}
+        </select>
+      </label>
+      <div class="two-column">
+        <div><h4>Evidence to request</h4><ul>${area.evidence.map((item) => `<li>${item}</li>`).join('')}</ul></div>
+        <div><h4>What good looks like</h4><ul>${area.indicators.map((item) => `<li>${item}</li>`).join('')}</ul></div>
+      </div>
+    </article>`;
+}
+
+function renderResults() {
+  const average = calculateAverageMaturity(scores);
+  const level = getMaturityLevel(average);
+  const priorities = getPriorityAreas(scores);
+  return `
+    <div class="result-number">${average}</div>
+    <h3>${level.name} maturity</h3>
+    <p>${level.signal}</p>
+    <h4>First executive priorities</h4>
+    <ol>${priorities.map((area) => `<li><strong>${area.function}:</strong> ${area.title} <span>(${area.score}/5)</span></li>`).join('')}</ol>`;
 }
 
 function render() {
-  const mission = MISSIONS[state.mission];
-  const rank = getRank(state.score);
-  const completed = state.mission >= MISSIONS.length;
   app.innerHTML = `
     <section class="hero">
-      <p class="eyebrow">Belgium NIS2 / CyFun training game</p>
-      <h1>CyFun Quest: Save the Kingdom of Proportional Controls</h1>
-      <p>Train junior consultants to connect Belgian NIS2 obligations with CyFun pillars through short missions, jokes, scoring, ranks, and awards.</p>
-      <div class="scoreboard"><strong>${state.score}</strong> points · <strong>${rank.name}</strong> · Award: ${rank.award}</div>
+      <p class="eyebrow">CyFun maturity assessment for CISOs</p>
+      <h1>Assess CyberFundamentals maturity with evidence, risk, and board-ready priorities.</h1>
+      <p class="hero-copy">Use this static guide to structure a CyFun maturity conversation: define scope, inspect evidence across Identify, Protect, Detect, Respond, and Recover, then turn gaps into an executive roadmap.</p>
+      <div class="pills">${renderFunctionPills()}</div>
     </section>
-    <section class="board">
-      <aside>
-        <h2>CyFun map</h2>
-        <div class="pills">${renderPillars(mission?.pillar)}</div>
-        <h3>How to play</h3>
-        <ol><li>Read the client scenario.</li><li>Pick the best consulting advice.</li><li>Debrief as a team: what evidence would prove it?</li></ol>
-        <p class="note">Content is a learning aid, not legal advice. Validate against official CCB/Safeonweb and CyFun materials before client delivery.</p>
+
+    <section class="layout">
+      <aside class="panel sticky">
+        <h2>How to run the assessment</h2>
+        <ol>${ROADMAP_STEPS.map((step) => `<li>${step}</li>`).join('')}</ol>
+        <p class="note">This website is an assessment aid, not legal advice. Validate scope, assurance requirements, and evidence expectations against official Belgian CCB / Safeonweb CyFun and NIS2 materials.</p>
       </aside>
-      <section class="card">${completed ? renderVictory() : renderMission(mission)}</section>
+
+      <section class="panel results" aria-live="polite">
+        ${renderResults()}
+      </section>
+    </section>
+
+    <section class="scale">
+      <h2>Maturity scale</h2>
+      <div class="level-grid">${renderMaturityScale()}</div>
+    </section>
+
+    <section class="assessment-grid">
+      <h2>CyFun function review</h2>
+      ${ASSESSMENT_AREAS.map(renderArea).join('')}
     </section>`;
+
   bind();
 }
 
-function renderMission(mission) {
-  return `<p class="mission-count">Mission ${state.mission + 1}/${MISSIONS.length} · ${mission.pillar}</p>
-    <h2>${mission.title}</h2><p>${mission.briefing}</p><p class="joke">${mission.joke}</p><h3>${mission.question}</h3>
-    <div class="answers">${mission.answers.map((answer, i) => `<button data-answer="${i}">${answer.text}</button>`).join('')}</div>
-    <div id="feedback" aria-live="polite"></div>`;
-}
-
-function renderVictory() {
-  const rank = getRank(state.score);
-  return `<h2>Debrief complete 🎉</h2><p>Your team finished with <strong>${state.score}</strong> points and the rank <strong>${rank.name}</strong>.</p>
-  <p>Award unlocked: <strong>${rank.award}</strong>.</p><h3>Facilitator challenge</h3><p>Ask each consultant to name one artifact they would request: risk register, incident report template, access review, backup test proof, or board minutes.</p>
-  <button data-restart="true">Play again</button>`;
-}
-
 function bind() {
-  document.querySelectorAll('[data-answer]').forEach((button) => button.addEventListener('click', () => answer(Number(button.dataset.answer))));
-  document.querySelector('[data-restart]')?.addEventListener('click', () => { state.mission = 0; state.score = 0; state.log = []; if (app) render(); });
-}
-
-function answer(index) {
-  const mission = MISSIONS[state.mission];
-  const selected = mission.answers[index];
-  const previousCorrect = state.log.slice(-3).filter(Boolean).length;
-  const delta = scoreAnswer(selected.correct, previousCorrect);
-  state.score = Math.max(0, state.score + delta);
-  state.log.push(selected.correct);
-  document.querySelector('#feedback').innerHTML = `<p class="${selected.correct ? 'good' : 'bad'}">${selected.feedback} (${delta > 0 ? '+' : ''}${delta} points)</p><button data-next="true">${selected.correct ? 'Next mission' : 'Continue anyway'}</button>`;
-  document.querySelectorAll('[data-answer]').forEach((b) => (b.disabled = true));
-  document.querySelector('[data-next]').addEventListener('click', () => { state.mission += 1; if (app) render(); });
+  document.querySelectorAll('[data-score]').forEach((select) => {
+    select.addEventListener('change', (event) => {
+      scores[event.target.dataset.score] = Number(event.target.value);
+      document.querySelector('.results').innerHTML = renderResults();
+    });
+  });
 }
 
 if (app) render();
