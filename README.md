@@ -1,14 +1,14 @@
-# CyFun Quest: Belgium NIS2 Training Game
+# Deutsch Neustart B2
 
-A playful browser game for junior cyber consultants learning how Belgian NIS2 duties connect to the CyFun / CyberFundamentals mindset.
+Une page web statique en français pour retrouver progressivement un niveau d'allemand B2 après une longue pause.
 
-## What learners practice
+## Ce que le site propose
 
-- Scoping an entity before proposing controls.
-- Explaining management accountability in plain language.
-- Mapping advice to the five CyFun learning pillars: Identify, Protect, Detect, Respond, and Recover.
-- Thinking in evidence: risk registers, access reviews, detection logs, incident records, restore tests, and board minutes.
-- Winning extremely serious awards, including the Chocolate Firewall Crown.
+- Un diagnostic rapide en 5 questions pour réactiver les réflexes de grammaire, conjugaison, vocabulaire quotidien et allemand business.
+- Un score et un niveau estimé pour visualiser les progrès.
+- Un parcours de 7 jours à répéter en cycles, avec objectifs quotidiens précis.
+- Un suivi local des jours terminés via `localStorage`.
+- Des tâches de production écrite/orale pour vérifier que le vocabulaire revient en contexte.
 
 ## Run locally
 
@@ -26,10 +26,6 @@ Then browse to <http://localhost:8080>.
 npm test
 ```
 
-## Source notes
+## Idée d'utilisation
 
-The learning content is intentionally concise and should be treated as training material, not legal advice. Before using it for client deliverables, validate with official Belgian sources:
-
-- CCB / Safeonweb NIS2 overview: <https://atwork.safeonweb.be/nis2>
-- CCB / Safeonweb CyberFundamentals Framework: <https://atwork.safeonweb.be/tools-resources/cyberfundamentals-framework>
-- CCB NIS2 regulation page: <https://ccb.belgium.be/regulation/nis2>
+Consacre 50 à 60 minutes par jour au plan. À la fin de chaque semaine, refais le diagnostic, compare ton score, puis recommence le cycle en remplaçant les mots faciles par des mots plus professionnels ou plus spécifiques à ton métier.
